@@ -12,6 +12,11 @@ AC_PROG_CC
 LT_INIT
 AC_PROG_LIBTOOL
 
+PKG_PROG_PKG_CONFIG
+if test -z "$PKG_CONFIG"; then
+  AC_MSG_WARN([Cannot find pkg-config.])
+fi
+
 CPPFLAGS="$CPPFLAGS -D_REENTRANT -D_GNU_SOURCE -fPIC"
 
 AM_CPPFLAGS="$AM_CPPFLAGS -I${top_srcdir}/include" 

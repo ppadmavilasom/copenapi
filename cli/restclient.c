@@ -871,8 +871,7 @@ int trace_fn(CURL *handle, curl_infotype type,
     if(text)
     {
         size_t i = 0;
-        fprintf(stderr, text);
-        fprintf(stderr, "\n");
+        fprintf(stderr, "%s\n", text);
         for(i = 0; i < size; ++i)
         {
             fprintf(stderr, "%c", data[i]);
