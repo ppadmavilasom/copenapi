@@ -66,7 +66,7 @@ get_default_int(
    dwError = get_default_value(pData, pszKey, &szValue);
    BAIL_ON_ERROR(dwError);
 
-   *pnValue = atoi(szValue);
+   *pnValue = szValue == NULL ? 0 : atoi(szValue);
 
 error:
    SAFE_FREE_MEMORY(szValue);
@@ -268,6 +268,31 @@ error:
     free_config_data(pConfigData);
     goto cleanup;
 } 
+
+uint32_t
+get_config_data_or_default(PCONF_DATA *ppConfigData, const char *pszApiSpec)
+{
+    uint32_t dwError = 0;
+    PCONF_DATA pConfigData = NULL;
+
+    dwError = get_config_data(&pConfigData);
+    if (dwError == ENOENT && pszApiSpec)
+    {
+        dwError = coapi_allocate_memory(sizeof(CONF_DATA),
+                                        (void **)&pConfigData);
+        BAIL_ON_ERROR(dwError);
+
+        dwError = process_config_line("[default]", pConfigData);
+        BAIL_ON_ERROR(dwError);
+    }
+    BAIL_ON_ERROR(dwError);
+    *ppConfigData = pConfigData;
+cleanup:
+    return dwError;
+error:
+    free_config_data(pConfigData);
+    goto cleanup;
+}
 
 uint32_t
 get_default_headers(PCONF_DATA pData, void *userdata, PFN_HEADER_CB fn)

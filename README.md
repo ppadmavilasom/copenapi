@@ -88,6 +88,14 @@ Parameter status is required. Specify as --status
 [{"id":9205436248879947591,"category":{"id":0,"name":"打死你"},"name":"doggie","photoUrls":["string"],"tags":[{"id":0,"name":"二哈"}],"status":"1"}]
 ~~~
 
+## Setting additional parameters
+Setting header params can be done via config. For eg. to specify a bearer token, create a .copenapi file with the following contents. Similarly for any header setting as key value. Format is header.key=value.
+~~~
+[default]
+header.Authorization=Bearer eyJraWQiOiIvcHJpdmF0ZUtleS5....
+~~~
+
+
 ## API how to
 
 To load an api spec from json file and map implementation, follow the sample code below

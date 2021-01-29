@@ -36,6 +36,14 @@ json_safe_get_string_value(
     );
 
 uint32_t
+json_get_string_value_or_default(
+    json_t *pRoot,
+    const char *pszKey,
+    char **ppszValue,
+    const char *pszDefault
+    );
+
+uint32_t
 json_get_string_value(
     json_t *pRoot,
     const char *pszKey,

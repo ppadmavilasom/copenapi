@@ -77,6 +77,39 @@ json_safe_get_string_value(
     return dwError;
 }
 
+uint32_t
+json_get_string_value_or_default(
+    json_t *pRoot,
+    const char *pszKey,
+    char **ppszValue,
+    const char *pszDefault
+    )
+{
+    uint32_t dwError = 0;
+    char *pszValue = NULL;
+
+    dwError = json_safe_get_string_value(pRoot, pszKey, ppszValue);
+    BAIL_ON_ERROR(dwError);
+
+    if (!*ppszValue) {
+        dwError = coapi_allocate_string(pszDefault, &pszValue);
+        BAIL_ON_ERROR(dwError);
+
+        *ppszValue = pszValue;
+    }
+
+cleanup:
+    return dwError;
+
+error:
+    if(ppszValue)
+    {
+        *ppszValue = NULL;
+    }
+    SAFE_FREE_MEMORY(pszValue);
+    goto cleanup;
+}
+
 
 uint32_t
 json_get_string_value(

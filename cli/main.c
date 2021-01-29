@@ -89,7 +89,8 @@ main(
         goto cleanup;
     }
 
-    dwError = get_config_data(&pArgs->pConfigData);
+    dwError = get_config_data_or_default(&pArgs->pConfigData,
+                                        pArgs->pszApiSpec);
     BAIL_ON_ERROR(dwError);
 
     if(IsNullOrEmptyString(pArgs->pszApiSpec))
@@ -101,6 +102,11 @@ main(
     }
 
     dwError = coapi_load_from_file(pArgs->pszApiSpec, &pApiDef);
+    if (dwError) {
+        fprintf(stderr,
+                "error: %d. failed to load from file: %s\n",
+                dwError, pArgs->pszApiSpec);
+    }
     BAIL_ON_ERROR(dwError);
 
     if(argc < 2 || pArgs->nHelp)
@@ -125,7 +131,7 @@ main(
         BAIL_ON_ERROR(dwError);
     }
 
-    if(IsNullOrEmptyString(pArgs->pszBaseUrl))
+    if(IsNullOrEmptyString(pArgs->pszBaseUrl) && pArgs->pConfigData)
     {
         dwError = get_default_value(pArgs->pConfigData,
                                     CONFIG_KEY_BASEURL,
@@ -133,7 +139,7 @@ main(
         BAIL_ON_ERROR(dwError);
     }
 
-    if (!pArgs->nInsecure)
+    if (!pArgs->nInsecure && pArgs->pConfigData)
     {
         dwError = get_default_int(pArgs->pConfigData,
                                     CONFIG_KEY_INSECURE,

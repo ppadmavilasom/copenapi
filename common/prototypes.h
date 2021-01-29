@@ -80,6 +80,12 @@ read_config_file_custom(
     );
 
 uint32_t
+process_config_line(
+    const char *pszLine,
+    PCONF_DATA pData
+    );
+
+uint32_t
 read_config_file(
     const char *pszFile,
     const int nMaxLineLength,

@@ -203,6 +203,9 @@ uint32_t
 get_config_data(PCONF_DATA *ppConfigData);
 
 uint32_t
+get_config_data_or_default(PCONF_DATA *ppConfigData, const char *pszApiSpec);
+
+uint32_t
 get_default_headers(PCONF_DATA pData, void *userdata, PFN_HEADER_CB fn);
 
 void
