@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_CONFIG_LINE_LENGTH 1024
+#define MAX_CONFIG_LINE_LENGTH 4096
 
 #define BAIL_ON_ERROR(dwError) \
     do {                                                           \

@@ -49,7 +49,7 @@ coapi_load_from_string(
     BAIL_ON_ERROR(dwError);
 
     dwError = json_get_string_value_or_default(pRoot, "basePath",
-                                        &pApiDef->pszBasePath, "");
+                                        &pApiDef->pszBasePath, "/");
     BAIL_ON_ERROR(dwError);
 
     dwError = coapi_load_modules(pRoot, &pApiDef->pModules);
