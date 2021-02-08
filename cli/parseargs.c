@@ -27,6 +27,7 @@ static struct option _pstMainOptions[] =
     {OPT_BASEURL,  required_argument, 0, 'b'},
     {OPT_NETRC,    no_argument, &_main_opt.nNetrc, 'n'},
     {OPT_REQUEST,  required_argument, 0, 'X'},
+    {OPT_DATA,  required_argument, 0, 'd'},
     {0, 0, 0, 0}
 };
 
@@ -60,7 +61,7 @@ parse_main_args(
         nOption = getopt_long (
                       argc,
                       argv,
-                      "a:b:hknu:vX:",
+                      "a:b:hknu:vX:d:",
                       _pstMainOptions,
                       &nOptionIndex);
         if (nOption == -1)
@@ -111,6 +112,13 @@ parse_main_args(
             case 'X':
                 dwError = parse_option(
                               OPT_REQUEST,
+                              optarg,
+                              pCmdArgs);
+                BAIL_ON_ERROR(dwError);
+            break;
+            case 'd':
+                dwError = parse_option(
+                              OPT_DATA,
                               optarg,
                               pCmdArgs);
                 BAIL_ON_ERROR(dwError);
@@ -257,6 +265,13 @@ parse_option(
         }
         BAIL_ON_ERROR(dwError);
     }
+    else if(!strcasecmp(pszName, OPT_DATA))
+    {
+        dwError = coapi_allocate_string(
+                      pszArg,
+                      &pCmdArgs->pszData);
+        BAIL_ON_ERROR(dwError);
+    }
 cleanup:
     return dwError;
 
@@ -273,9 +288,12 @@ free_cmd_args(
     if(pCmdArgs)
     {
         SAFE_FREE_MEMORY(pCmdArgs->pszApiSpec);
+        SAFE_FREE_MEMORY(pCmdArgs->pszBaseUrl);
+        SAFE_FREE_MEMORY(pCmdArgs->pszData);
+        SAFE_FREE_MEMORY(pCmdArgs->pszDomain);
+        SAFE_FREE_MEMORY(pCmdArgs->pszSpn);
         SAFE_FREE_MEMORY(pCmdArgs->pszUser);
         SAFE_FREE_MEMORY(pCmdArgs->pszUserPass);
-        SAFE_FREE_MEMORY(pCmdArgs->pszBaseUrl);
         coapi_free_string_array_with_count(pCmdArgs->ppszCmds,
                                            pCmdArgs->nCmdCount);
         free_config_data(pCmdArgs->pConfigData);

@@ -69,10 +69,11 @@ typedef struct _CMD_ARGS_
 {
     char *pszApiSpec;
     char *pszBaseUrl;
-    char *pszUser;
+    char *pszData;
     char *pszDomain;
-    char *pszUserPass;
     char *pszSpn;
+    char *pszUser;
+    char *pszUserPass;
     int nCmdCount;
     int nHelp;
     int nVerbose;
