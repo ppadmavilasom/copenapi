@@ -28,6 +28,7 @@ show_util_help(
     printf("           [-u --user - user name. prompts for password.]\n");
     printf("           [-v --verbose - print detailed debug output]\n");
     printf("           [-X --request - specify request command (GET,PUT,POST,DELETE,PATCH)]\n");
+    printf("           [-d --data request body data]\n");
     printf("           [-h --help - print this message]\n");
     printf("\n");
     printf("\n");

@@ -136,10 +136,17 @@ call_rest_method(
         {
             case METHOD_PUT:
                 dwError = curl_easy_setopt(pCurl, CURLOPT_CUSTOMREQUEST, "PUT");
-                dwError = curl_easy_setopt(pCurl, CURLOPT_POSTFIELDS, "");
+                BAIL_ON_CURL_ERROR(dwError);
+                dwError = curl_easy_setopt(
+                            pCurl,
+                            CURLOPT_POSTFIELDS,
+                            pArgs->pszData?pArgs->pszData : "");
                 break;
             case METHOD_POST:
-                dwError = curl_easy_setopt(pCurl, CURLOPT_POSTFIELDS, "");
+                dwError = curl_easy_setopt(
+                            pCurl,
+                            CURLOPT_POSTFIELDS,
+                            pArgs->pszData?pArgs->pszData : "");
                 break;
             case METHOD_DELETE:
                 dwError = curl_easy_setopt(pCurl, CURLOPT_CUSTOMREQUEST, "DELETE");

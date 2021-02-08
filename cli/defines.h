@@ -35,6 +35,7 @@
 #define OPT_NETRC    "netrc"
 #define OPT_HELP     "help"
 #define OPT_REQUEST  "request"
+#define OPT_DATA     "data"
 
 #define CONFIG_KEY_APISPEC     "apispec"
 #define CONFIG_KEY_BASEURL     "baseurl"
