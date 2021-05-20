@@ -106,13 +106,25 @@ validate_options(
 
     for(pParam = pRestArgs->pParams; pParam; pParam = pParam->pNext)
     {
-        if(pParam->nRequired && IsNullOrEmptyString(pParam->pszValue))
+printf("name = %s, %d\n", pParam->pszName, pParam->nRequired);
+        if(pParam->nRequired)
         {
-            fprintf(stderr,
+            if (pParam->nType == PARAM_TYPE_DATA && !pRestArgs->nHasData)
+            {
+                fprintf(stderr,
+                    "Parameter %s is required. Specify as -d'<value>'\n",
+                    pParam->pszName);
+                dwError = EINVAL;
+            }
+            else if(pParam->nType != PARAM_TYPE_DATA
+                    && IsNullOrEmptyString(pParam->pszValue))
+            {
+                fprintf(stderr,
                     "Parameter %s is required. Specify as --%s\n",
                     pParam->pszName,
                     pParam->pszName);
-            dwError = EINVAL;
+                dwError = EINVAL;
+            }
         }
     }
 

@@ -48,9 +48,18 @@ typedef struct _PARSE_CONTEXT_
     PPARAM pParams;
 }PARSE_CONTEXT, *PPARSE_CONTEXT;
 
+typedef enum _PARAM_TYPE_
+{
+    PARAM_TYPE_NORMAL,
+    PARAM_TYPE_DATA,
+    PARAM_TYPE_HEADER,
+    PARAM_TYPE_FILE
+}PARAM_TYPE;
+
 typedef struct _REST_CMD_PARAM_
 {
     int nRequired;
+    PARAM_TYPE nType;
     char *pszName;
     char *pszValue;
     struct _REST_CMD_PARAM_ *pNext;
@@ -58,6 +67,7 @@ typedef struct _REST_CMD_PARAM_
 
 typedef struct _REST_CMD_ARGS_
 {
+    int nHasData;
     int nParamCount;
     RESTMETHOD nRestMethod;
     char *pszModule;

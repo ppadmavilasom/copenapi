@@ -106,7 +106,7 @@ coapi_replace_endpoint_path(
 
     for(pApiParam = pApiParams; pApiParam; pApiParam = pApiParam->pNext)
     {
-        if(strcmp(pApiParam->pszIn, "path"))
+        if(pApiParam->nPos != RESTPARAMPOS_PATH)
         {
             continue;
         }
@@ -185,6 +185,7 @@ coapi_load_endpoints(
     PREST_API_ENDPOINT pEndPoint = NULL;
     PREST_API_METHOD pRestMethod = NULL;
     char *pszPathCommand = NULL;
+    char *pszTemp = NULL;
 
     if(!pRoot || !pszBasePath || !pApiModules)
     {
@@ -218,11 +219,17 @@ coapi_load_endpoints(
                                         &pEndPoint->pszCommandName);
         BAIL_ON_ERROR(dwError);
 
-        dwError = coapi_allocate_string_printf(&pEndPoint->pszActualName,
+        dwError = coapi_allocate_string_printf(&pszTemp,
                                                "%s%s",
                                                pszBasePath,
                                                pszKey);
         BAIL_ON_ERROR(dwError);
+
+        dwError = string_replace(pszTemp, "//", "/", &pEndPoint->pszActualName);
+        BAIL_ON_ERROR(dwError);
+
+        SAFE_FREE_MEMORY(pszTemp);
+        pszTemp = NULL;
 
         json_object_foreach(pPath, pszMethod, pMethod)
         {
@@ -312,6 +319,7 @@ cleanup:
     return dwError;
 
 error:
+    SAFE_FREE_MEMORY(pszTemp);
     coapi_free_api_endpoint(pEndPoint);
     coapi_free_api_method(pRestMethod);
     goto cleanup;
@@ -464,8 +472,7 @@ coapi_load_parameters(
         pTemp = json_object_get(pJsonParam, "in");
         if(pTemp)
         {
-            dwError = coapi_allocate_string(json_string_value(pTemp),
-                                            &pParam->pszIn);
+            dwError = coapi_get_param_pos(json_string_value(pTemp), &pParam->nPos);
             BAIL_ON_ERROR(dwError);
         }
         else
@@ -479,20 +486,10 @@ coapi_load_parameters(
                BAIL_ON_ERROR(dwError);
             }
             if (hasParam) {
-               /*
-               fprintf(stderr, "parameter: %s missing required field - in. assuming path\n",
-                       pParam->pszName);
-               */
-               dwError = coapi_allocate_string("path", &pParam->pszIn);
-               BAIL_ON_ERROR(dwError);
+                pParam->nPos = RESTPARAMPOS_PATH;
             }
             else {
-               /*
-               fprintf(stderr, "parameter: %s missing required field - in. assuming query\n",
-                       pParam->pszName);
-               */
-               dwError = coapi_allocate_string("query", &pParam->pszIn);
-               BAIL_ON_ERROR(dwError);
+                pParam->nPos = RESTPARAMPOS_QUERY;
             }
         }
 
@@ -1136,6 +1133,61 @@ error:
 }
 
 uint32_t
+coapi_get_param_pos(
+    const char *pszPos,
+    RESTPARAMPOS* pnPos
+    )
+{
+    uint32_t dwError = 0;
+    RESTPARAMPOS nPos = RESTPARAMPOS_INVALID;
+
+    if(!pszPos || !pnPos)
+    {
+        dwError = EINVAL;
+        BAIL_ON_ERROR(dwError);
+    }
+
+    if(!strcasecmp(pszPos, "body"))
+    {
+        nPos = RESTPARAMPOS_BODY;
+    }
+    else if(!strcasecmp(pszPos, "query"))
+    {
+        nPos = RESTPARAMPOS_QUERY;
+    }
+    else if(!strcasecmp(pszPos, "path"))
+    {
+        nPos = RESTPARAMPOS_PATH;
+    }
+    else if(!strcasecmp(pszPos, "formData"))
+    {
+        nPos = RESTPARAMPOS_FORMDATA;
+    }
+    else if(!strcasecmp(pszPos, "header"))
+    {
+        nPos = RESTPARAMPOS_HEADER;
+    }
+    else
+    {
+        fprintf(stderr, "pos %s is not a valid parameter position\n", pszPos);
+        dwError = ENOENT;
+        BAIL_ON_ERROR(dwError);
+    }
+
+    *pnPos = nPos;
+
+cleanup:
+    return dwError;
+
+error:
+    if(pnPos)
+    {
+        *pnPos = RESTPARAMPOS_INVALID;
+    }
+    goto cleanup;
+}
+
+uint32_t
 coapi_get_rest_type(
     const char *pszType,
     RESTPARAMTYPE *pnType
@@ -1454,7 +1506,6 @@ coapi_free_api_param(
         PREST_API_PARAM pParamTemp = pParam->pNext;
 
         SAFE_FREE_MEMORY(pParam->pszName);
-        SAFE_FREE_MEMORY(pParam->pszIn);
         coapi_free_string_array_with_count(
             pParam->ppszOptions,
             pParam->nOptionCount);

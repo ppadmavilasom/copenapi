@@ -59,6 +59,12 @@ coapi_file_read_all_text(
 
 //restapidef.c
 uint32_t
+coapi_get_param_pos(
+    const char *pszPos,
+    RESTPARAMPOS* pnPos
+    );
+
+uint32_t
 coapi_load_modules(
     json_t *pRoot,
     PREST_API_MODULE *ppApiModules

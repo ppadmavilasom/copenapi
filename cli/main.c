@@ -127,6 +127,7 @@ main(
 
     if(pRestCmdArgs->nParamCount > 0)
     {
+        pRestCmdArgs->nHasData = !IsNullOrEmptyString(pArgs->pszData);
         dwError = parse_cmd_args(argc, argvDup, pRestCmdArgs);
         BAIL_ON_ERROR(dwError);
     }

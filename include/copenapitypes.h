@@ -36,6 +36,16 @@ typedef enum _RESTPARAMTYPE_
     RESTPARAM_INVALID
 }RESTPARAMTYPE;
 
+typedef enum _RESTPARAMPOS_
+{
+    RESTPARAMPOS_BODY,
+    RESTPARAMPOS_FORMDATA,
+    RESTPARAMPOS_HEADER,
+    RESTPARAMPOS_PATH,
+    RESTPARAMPOS_QUERY,
+    RESTPARAMPOS_INVALID
+}RESTPARAMPOS;
+
 typedef uint32_t
 (*PFN_MODULE_ENDPOINT_CB)(
      void *pIn,
@@ -64,9 +74,9 @@ typedef struct _MODULE_REG_MAP_
 typedef struct _REST_API_PARAM_
 {
     char *pszName;
-    char *pszIn;
     int nRequired;
     RESTPARAMTYPE nType;
+    RESTPARAMPOS nPos;
     int nOptionCount;
     char **ppszOptions;
 

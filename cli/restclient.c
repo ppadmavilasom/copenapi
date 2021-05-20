@@ -170,7 +170,7 @@ call_rest_method(
         dwError = curl_easy_getinfo(pCurl, CURLINFO_RESPONSE_CODE, &nStatus);
         BAIL_ON_CURL_ERROR(dwError);
 
-        if(nStatus != HTTP_OK)
+        if(nStatus >= 400)
         {
             if(nStatus == 401)
             {
@@ -408,9 +408,10 @@ get_query_string(
         }
         BAIL_ON_ERROR(dwError);
 
-        if(IsNullOrEmptyString(pParam->pszValue))
+        if(pParam->nRequired)
         {
-            if(pParam->nRequired)
+            if(pParam->nType != PARAM_TYPE_DATA
+                && IsNullOrEmptyString(pParam->pszValue))
             {
                 fprintf(stderr, "value required for param --%s\n", pszName);
                 dwError = EINVAL;
@@ -420,7 +421,7 @@ get_query_string(
         }
 
 	/* only process query params */
-        if (strcmp(pApiParam->pszIn, "query"))
+        if (pApiParam->nPos == RESTPARAMPOS_QUERY)
         {
             continue;
         }
@@ -670,6 +671,31 @@ error:
     goto cleanup;
 }
 
+PARAM_TYPE
+get_param_type(
+    const RESTPARAMPOS nPos
+    )
+{
+    PARAM_TYPE nType = PARAM_TYPE_NORMAL;
+    switch(nPos)
+    {
+        case RESTPARAMPOS_PATH:
+        case RESTPARAMPOS_QUERY:
+            nType = PARAM_TYPE_NORMAL;
+            break;
+        case RESTPARAMPOS_BODY:
+        case RESTPARAMPOS_FORMDATA:
+            nType = PARAM_TYPE_DATA;
+            break;
+        case RESTPARAMPOS_HEADER:
+            nType = PARAM_TYPE_HEADER;
+            break;
+        default:
+            nType = PARAM_TYPE_NORMAL;
+    }
+    return nType;
+}
+
 uint32_t
 rest_get_cmd_params(
     PREST_API_DEF pApiDef,
@@ -703,6 +729,7 @@ rest_get_cmd_params(
         BAIL_ON_ERROR(dwError);
 
         pParam->nRequired = pApiParam->nRequired;
+        pParam->nType = get_param_type(pApiParam->nPos);
         dwError = coapi_allocate_string(pApiParam->pszName, &pParam->pszName);
         BAIL_ON_ERROR(dwError);
 
@@ -734,7 +761,7 @@ get_url_string(
 
     for(; pApiParam; pApiParam = pApiParam->pNext)
     {
-        if(strcmp(pApiParam->pszIn, "path"))
+        if(pApiParam->nPos != RESTPARAMPOS_PATH)
         {
             continue;
         }
